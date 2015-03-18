@@ -2,13 +2,16 @@ package com.sk.socketconnect.utils;
 
 public interface Constant {
 
-    String HOST = "192.168.1.111";
+    String HOST = "192.168.1.112";
     int PORT = 3999;
+    
+    String ENCODING = "UTF-8";
 
     /***************************** action *********************************/
     String LOGIN = "LOGIN";
     String GETTASK = "GETTASKLIST";
     String GETTASKPOINT = "GETTASKPOINT";
+    String UNLOADIMAGE = "_IMAGE_";
 
     /***************************** Bundle Key **********************************/
     String LOGIN_RESULT = "login_result";

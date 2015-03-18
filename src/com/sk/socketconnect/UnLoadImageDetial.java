@@ -1,5 +1,6 @@
 package com.sk.socketconnect;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import android.content.ContentResolver;
@@ -18,6 +19,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.sk.socketconnect.base.BaseActivity;
+import com.sk.socketconnect.interf.OnRequestStateListener;
+import com.sk.socketconnect.utils.Constant;
 
 public class UnLoadImageDetial extends BaseActivity {
 
@@ -28,6 +31,8 @@ public class UnLoadImageDetial extends BaseActivity {
     private final int IMAGE_CODE = 101;
     private final int IMAGE_CODE_KITKAT = 102;
     private TextView unload_img_act_image_url;
+    
+    private Bitmap mGetBitmap;
 
     @Override
     public void onClick(View v) {
@@ -36,7 +41,11 @@ public class UnLoadImageDetial extends BaseActivity {
             getImageUrl();
             break;
         case R.id.unload_img_act_unload:
-
+            if(mGetBitmap == null){
+                showShortToast("please choose image");
+            }else{
+                unLoadBitmap(mGetBitmap);
+            }
             break;
 
         default:
@@ -191,12 +200,12 @@ public class UnLoadImageDetial extends BaseActivity {
             printLog("ActivityResult resultCode error");
             return;
         }
-        Bitmap bm = null;
+        //Bitmap bm = null;
         ContentResolver resolver = getContentResolver();
         if (requestCode == IMAGE_CODE) {
             try {
                 Uri originalUri = data.getData();
-                bm = MediaStore.Images.Media.getBitmap(resolver, originalUri);
+                mGetBitmap = MediaStore.Images.Media.getBitmap(resolver, originalUri);
 
                 // get image url
                 String[] proj = { MediaStore.Images.Media.DATA };
@@ -213,6 +222,31 @@ public class UnLoadImageDetial extends BaseActivity {
         if (requestCode == IMAGE_CODE_KITKAT){
             
         }
+//        if(bm != null){
+//            unLoadBitmap(bm);
+//        }
+    }
+
+    private void unLoadBitmap(Bitmap bm) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        String bitmapStr = baos.toString();
+        printLog("bitmapStr.length() ====> " + bitmapStr.length());
+        String requestMsg = appendRequest(Constant.UNLOADIMAGE, bitmapStr);
+        sendRequest(requestMsg, new OnRequestStateListener() {
+ 
+            @Override
+            public void onRequestSuccess(String result) {
+                // TODO Auto-generated method stub
+                printLog("result === > " + result);
+            }
+            
+            @Override
+            public void onRequestFailed() {
+                // TODO Auto-generated method stub
+                
+            }
+        });
     }
 
     public String selectImagePath(Intent data) {
