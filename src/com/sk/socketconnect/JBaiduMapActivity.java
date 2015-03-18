@@ -12,6 +12,7 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.sk.socketconnect.base.BaseActivity;
+import com.sk.socketconnect.utils.Constant;
 
 public class JBaiduMapActivity extends BaseActivity {
 
@@ -22,10 +23,15 @@ public class JBaiduMapActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBaiduMap = mMapView.getMap();
-        double pointX = 39.963175;
-        double pointY = 116.400244;
+//        double pointX = 39.963175;
+//        double pointY = 116.400244;
+        String pointResult = getIntent().getStringExtra(Constant.GETTASKPOINT_RESULT);
+        String[] pointArr = pointResult.split(",");
+        for (int i = 0; i < pointArr.length; i++) {
+            String[] pointXY = pointArr[i].split(" ");
+            getMarkPoint(Double.parseDouble(pointXY[0]), Double.parseDouble(pointXY[1]), R.drawable.icon_marka);
+        }
 
-        getMarkPoint(pointX, pointY, R.drawable.icon_marka);
     }
 
     private Marker getMarkPoint(double pointX, double pointY, int markId) {

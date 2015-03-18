@@ -43,9 +43,10 @@ public class JSocketClientHelper {
             @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
-                if ("".equals(result)) {
+                if ("".equals(result) || !(result.startsWith("{") && result.endsWith("}"))) {
                     orssl.onRequestFailed();
                 } else {
+                    result = result.substring(1, result.length()-1);
                     orssl.onRequestSuccess(result);
                 }
             }

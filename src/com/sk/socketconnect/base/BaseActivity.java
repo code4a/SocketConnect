@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -29,9 +30,9 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
 
     protected abstract int getLayoutId();
 
-    protected String appendRequest(String action, String trim/*, String trim2*/) {
+    protected String appendRequest(String action, String requestMessage/*, String trim2*/) {
         StringBuffer requestMsg = new StringBuffer();
-        return requestMsg.append("{").append(action).append(",").append(trim)/*.append(",").append(trim2)*/.append("}").toString();
+        return requestMsg.append("{").append(action).append(",").append(requestMessage)/*.append(",").append(trim2)*/.append("}").toString();
     }
 
     protected void sendRequest(String requestMsg, final OnRequestStateListener orsl) {
@@ -124,5 +125,9 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
 
     protected <T extends View> T $(int resId) {
         return (T) findViewById(resId);
+    }
+    
+    protected void printLog(String log){
+        Log.i(this.getClass().getSimpleName(), log);
     }
 }

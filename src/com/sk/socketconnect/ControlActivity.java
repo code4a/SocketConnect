@@ -14,6 +14,7 @@ public class ControlActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBundleResult = getIntent().getStringExtra(Constant.LOGIN_RESULT);
+        printLog("mBundleResult = " + mBundleResult);
     }
     @Override
     public void onClick(View v) {
@@ -24,9 +25,11 @@ public class ControlActivity extends BaseActivity {
                 
                 @Override
                 public void onRequestSuccess(String result) {
-                    Bundle pBundle = new Bundle();
-                    pBundle.putString(Constant.GETTASK_RESULT, result);
-                    openActivity(TaskListActivity.class, pBundle);
+                    if(result.contains(Constant.GETTASK_RESULT_SUCCESS)){
+                        Bundle pBundle = new Bundle();
+                        pBundle.putString(Constant.GETTASK_RESULT, result);
+                        openActivity(TaskListActivity.class, pBundle);
+                    }
                 }
                 
                 @Override
@@ -34,6 +37,12 @@ public class ControlActivity extends BaseActivity {
                     showLongToast("request failed !!! ");
                 }
             });
+            break;
+        case R.id.control_act_get_img:
+            openActivity(UnLoadImageDetial.class);
+            break;
+        case R.id.control_act_chat:
+            
             break;
 
         default:
@@ -44,11 +53,15 @@ public class ControlActivity extends BaseActivity {
     @Override
     protected void mFindViewByIdAndSetListener() {
         $(R.id.control_act_get_task).setOnClickListener(this);
+        $(R.id.control_act_get_img).setOnClickListener(this);
+        $(R.id.control_act_chat).setOnClickListener(this);
     }
 
     @Override
     protected int getLayoutId() {
         return R.layout.activity_control;
     }
+    
+    
 
 }

@@ -29,9 +29,15 @@ public class LoginActivity extends BaseActivity {
             sendRequest(requestMsg, new OnRequestStateListener() {
                 @Override
                 public void onRequestSuccess(String result) {
-                    Bundle pBundle = new Bundle();
-                    pBundle.putString(Constant.LOGIN_RESULT, result);
-                    openActivity(ControlActivity.class, pBundle);
+                    
+                    String[] resultArr = result.split(",");
+                    if(Constant.LOGIN_RESULT_SUCCESS.equals(resultArr[0])){
+                        Bundle pBundle = new Bundle();
+                        pBundle.putString(Constant.LOGIN_RESULT, resultArr[1]);
+                        openActivity(ControlActivity.class, pBundle);
+                    }else{
+                        
+                    }
                 }
 
                 @Override
