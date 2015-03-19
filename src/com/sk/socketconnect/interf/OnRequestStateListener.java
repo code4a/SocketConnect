@@ -5,11 +5,11 @@ public interface OnRequestStateListener {
     /**
      * request failed
      */
-    void onRequestFailed();
+    void onFailed();
 
     /**
      * request success
      * @param result
      */
-    void onRequestSuccess(String result);
+    void onSuccess(String result);
 }

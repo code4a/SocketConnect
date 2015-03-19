@@ -1,15 +1,12 @@
 package com.sk.socketconnect.socket;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-import android.os.SystemClock;
 import android.util.Log;
 
 import com.sk.socketconnect.utils.Constant;
@@ -26,71 +23,85 @@ public class JSocketClient {
         return mInstance;
     }
 
-    public String getServerMsg(String requestMsg, boolean isExtraStream, InputStream mis) {
-        String responseMsg = "";
-        boolean isSuccess = false;
-        try {
-            Socket socket = new Socket(Constant.HOST, Constant.PORT);
-            
-            OutputStream mos = socket.getOutputStream();
-            
-            OutputStreamWriter os = new OutputStreamWriter(mos, Constant.ENCODING);
-            // 由Socket对象得到输出流，并构造PrintWriter对象
-            BufferedReader is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            
-            if(isExtraStream && mis != null){
-                isSuccess = sendIOStream(mis, mos);
-            }else{
-                if(requestMsg != null){
-                    os.write(requestMsg);
-                    os.flush();
-                    isSuccess = false;
-                }else{
-                    return "";
-                }
-            }
-
-
-            if(isSuccess){
-                SystemClock.sleep(1000);
-                responseMsg = "{_SEND_IMAGE_SUCCESS_}";
-            }else{
-                responseMsg = is.readLine();
-            }
-            os.close(); // 关闭Socket输出流
-            is.close(); // 关闭Socket输入流
-            socket.close();// 关闭Socket
-        } catch (Exception e) {
-            Log.i(TAG,"log is : " + e.getMessage());
-            System.out.println("Error" + e); // 出错，则打印出错信息
+    // public String getServerMsg(String requestMsg) {
+    // return onSocketClient(requestMsg);
+    // }
+    public String getServerMsg(Object obj) {
+        if (obj == null) {
+            return "";
         }
-        return responseMsg;
+        return onSocketClient(obj);
     }
 
-    private boolean sendIOStream(InputStream mIS, OutputStream mOS) {
-        BufferedOutputStream bos = null;
+    private String servInfoBack(Socket sock) {
+        InputStream sockIn;
+        byte[] bufIn = new byte[1024];
+        int lenIn = 0;
         try {
-            bos = new BufferedOutputStream(mOS);
-            byte[] buf = new byte[1024 * 1024 * 10];
-            int len = 0 ;
-            while((len=mIS.read(buf))!=-1){
-                bos.write(buf,0,len);
-                bos.flush();
-                Log.i(this.getClass().getSimpleName(), " ---- write ----- " + len);
-                //printLog("");
+            sockIn = sock.getInputStream();
+            lenIn = sockIn.read(bufIn);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String info = new String(bufIn, 0, lenIn);
+        return info;
+    }
+
+    private String onSocketClient(Object obj) {
+        String serverInfo = "";
+        try {
+            Socket sock = new Socket(Constant.HOST, Constant.PORT);
+            OutputStream sockOut = sock.getOutputStream();
+            if (obj instanceof String) {
+                sockOut.write(((String) obj).getBytes());
+                //serverInfo = servInfoBack(sock);
+                //return servInfoBack(sock);
             }
+            if (obj instanceof File) {
+                boolean isSucress = sendFileIOStream(((File) obj), sock);
+                if (isSucress) {
+                    sockOut.write("{_IMAGE_END_}".getBytes());
+                }
+            }
+            serverInfo = servInfoBack(sock);
+            sock.shutdownOutput();
+            sock.close();
         } catch (Exception e) {
-            Log.i(TAG,"log is : " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return serverInfo;
+    }
+
+    private boolean sendFileIOStream(File mFile, Socket sock) {
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(mFile);
+            OutputStream sockOut = sock.getOutputStream();
+            byte[] bufFile = new byte[1024];
+            int len = 0;
+            while (true) {
+                len = fis.read(bufFile);
+                if (len != -1) {
+                    sockOut.write(bufFile, 0, len); // 将从硬盘上读取的字节数据写入socket输出流
+                } else {
+                    break;
+                }
+            }
+            Thread.sleep(2000);
+            // sockOut.write("{_IMAGE_END_}".getBytes());
+        } catch (Exception e) {
+            Log.i(TAG, "log is : " + e.getMessage());
             System.out.println("Error" + e);
             return false;
-        }finally{
-            if(bos != null){
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
             }
         }
         return true;

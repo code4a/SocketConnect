@@ -86,4 +86,16 @@ public class JBaiduMapActivity extends BaseActivity {
         mMapView.onPause();
     }
 
+    @Override
+    public void onFailed() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onSuccess(String result) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

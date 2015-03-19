@@ -2,7 +2,7 @@ package com.sk.socketconnect.utils;
 
 public interface Constant {
 
-    String HOST = "10.2.48.45";
+    String HOST = "192.168.1.112";
     int PORT = 3999;
     
     String ENCODING = "UTF-8";
@@ -25,5 +25,6 @@ public interface Constant {
     String GETTASK_RESULT_SUCCESS = "TASKLIST";
     String GETTASKPOINT_SUCCESS = "TASKPOINTLIST";
     String UNLOADIMAGE_START_SUCCESS = "_IMAGE_READY_";
+    String UNLOADIMAGE_SUCCESS = "_SEND_IMAGE_SUCCESS_";
     
 }

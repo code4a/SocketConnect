@@ -26,25 +26,7 @@ public class LoginActivity extends BaseActivity {
         case R.id.login_act_login:
             String loginMsg = main_act_username.getText().toString().trim() + "," + main_act_password.getText().toString().trim();
             String requestMsg = appendRequest(Constant.LOGIN, loginMsg);
-            sendRequest(requestMsg, false, null, new OnRequestStateListener() {
-                @Override
-                public void onRequestSuccess(String result) {
-                    
-                    String[] resultArr = result.split(",");
-                    if(Constant.LOGIN_RESULT_SUCCESS.equals(resultArr[0])){
-                        Bundle pBundle = new Bundle();
-                        pBundle.putString(Constant.LOGIN_RESULT, resultArr[1]);
-                        openActivity(ControlActivity.class, pBundle);
-                    }else{
-                        
-                    }
-                }
-
-                @Override
-                public void onRequestFailed() {
-                    showLongToast("request failed");
-                }
-            });
+            sendRequest(requestMsg);
             break;
 
         default:
@@ -64,6 +46,23 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected int getLayoutId() {
         return R.layout.activity_login;
+    }
+
+    @Override
+    public void onFailed() {
+        showLongToast("request failed");
+    }
+
+    @Override
+    public void onSuccess(String result) {
+        String[] resultArr = result.split(",");
+        if(Constant.LOGIN_RESULT_SUCCESS.equals(resultArr[0])){
+            Bundle pBundle = new Bundle();
+            pBundle.putString(Constant.LOGIN_RESULT, resultArr[1]);
+            openActivity(ControlActivity.class, pBundle);
+        }else{
+            
+        }
     }
 
 }

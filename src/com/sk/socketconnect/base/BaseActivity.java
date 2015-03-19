@@ -1,6 +1,6 @@
 package com.sk.socketconnect.base;
 
-import java.io.InputStream;
+import java.io.File;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -16,7 +16,8 @@ import com.sk.socketconnect.interf.OnRequestSockerServerListener;
 import com.sk.socketconnect.interf.OnRequestStateListener;
 import com.sk.socketconnect.socket.JSocketClientHelper;
 
-public abstract class BaseActivity extends Activity implements OnClickListener {
+public abstract class BaseActivity extends Activity implements OnClickListener,
+        OnRequestStateListener {
 
     protected Dialog mDialog;
 
@@ -32,32 +33,45 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
 
     protected abstract int getLayoutId();
 
-    protected String appendRequest(String action, String requestMessage/*, String trim2*/) {
+    protected String appendRequest(String action, String requestMessage/*
+                                                                        * ,
+                                                                        * String
+                                                                        * trim2
+                                                                        */) {
         StringBuffer requestMsg = new StringBuffer();
-        return requestMsg.append("{").append(action).append(",").append(requestMessage)/*.append(",").append(trim2)*/.append("}").toString();
+        return requestMsg.append("{").append(action).append(",")
+                .append(requestMessage)
+                /* .append(",").append(trim2) */.append("}").toString();
     }
 
-    protected void sendRequest(String requestMsg, boolean isExtraStream, InputStream mis, final OnRequestStateListener orsl) {
-        JSocketClientHelper.getInstance().requestSocketGetResult(requestMsg, isExtraStream, mis, new OnRequestSockerServerListener() {
+//    protected void sendRequest(String requestMsg) {
+//        JSocketClientHelper.getInstance().requestSocketGetResult(requestMsg,
+//                orssl);
+//    }
 
-            @Override
-            public void onRequestFailed() {
-                safeDimissDialog();
-                orsl.onRequestFailed();
-            }
-
-            @Override
-            public void onRequestSuccess(String result) {
-                safeDimissDialog();
-                orsl.onRequestSuccess(result);
-            }
-
-            @Override
-            public void onPrepareRequest() {
-                mDialog = ProgressDialog.show(BaseActivity.this, "", "please wait");
-            }
-        });
+    protected void sendRequest(Object obj) {
+        JSocketClientHelper.getInstance().requestSocketGetResult(obj, orssl);
     }
+
+    private OnRequestSockerServerListener orssl = new OnRequestSockerServerListener() {
+
+        @Override
+        public void onRequestFailed() {
+            safeDimissDialog();
+            onFailed();
+        }
+
+        @Override
+        public void onRequestSuccess(String result) {
+            safeDimissDialog();
+            onSuccess(result);
+        }
+
+        @Override
+        public void onPrepareRequest() {
+            mDialog = ProgressDialog.show(BaseActivity.this, "", "please wait");
+        }
+    };
 
     @Override
     protected void onDestroy() {
@@ -128,8 +142,8 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
     protected <T extends View> T $(int resId) {
         return (T) findViewById(resId);
     }
-    
-    protected void printLog(String log){
+
+    protected void printLog(String log) {
         Log.i(this.getClass().getSimpleName(), log);
     }
 }

@@ -22,7 +22,8 @@ public class TaskListActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String getTaskListMsg = getIntent().getStringExtra(Constant.GETTASK_RESULT);
+        String getTaskListMsg = getIntent().getStringExtra(
+                Constant.GETTASK_RESULT);
         mTaskList = new ArrayList<String>();
         String[] mTaskArray = getTaskListMsg.split(",");
 
@@ -33,31 +34,14 @@ public class TaskListActivity extends BaseActivity {
         mListView.setAdapter(mtlaAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view,
+                    int position, long id) {
                 String itemMsg = (String) parent.getItemAtPosition(position);
                 String[] itemMsgArr = itemMsg.split(" ");
 
-                String requestMsg = appendRequest(Constant.GETTASKPOINT, itemMsgArr[1] + "," + itemMsgArr[2]);
-                sendRequest(requestMsg, false, null, new OnRequestStateListener() {
-                    @Override
-                    public void onRequestSuccess(String result) {
-                        // TASKPOINTLIST，x y,x y
-                        if (result.contains(Constant.GETTASKPOINT_SUCCESS)) {
-                            result = result.substring(result.indexOf(",") + 1);
-                            Bundle pBundle = new Bundle();
-                            pBundle.putString(Constant.GETTASKPOINT_RESULT, result);
-                            openActivity(JBaiduMapActivity.class, pBundle);
-                        }
-
-                    }
-
-                    @Override
-                    public void onRequestFailed() {
-                        // TODO Auto-generated method stub
-
-                    }
-                });
-
+                String requestMsg = appendRequest(Constant.GETTASKPOINT,
+                        itemMsgArr[1] + "," + itemMsgArr[2]);
+                sendRequest(requestMsg);
             }
         });
     }
@@ -74,6 +58,23 @@ public class TaskListActivity extends BaseActivity {
     @Override
     protected int getLayoutId() {
         return R.layout.activity_task_list;
+    }
+
+    @Override
+    public void onFailed() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onSuccess(String result) {
+        // TASKPOINTLIST，x y,x y
+        if (result.contains(Constant.GETTASKPOINT_SUCCESS)) {
+            result = result.substring(result.indexOf(",") + 1);
+            Bundle pBundle = new Bundle();
+            pBundle.putString(Constant.GETTASKPOINT_RESULT, result);
+            openActivity(JBaiduMapActivity.class, pBundle);
+        }
     }
 
 }

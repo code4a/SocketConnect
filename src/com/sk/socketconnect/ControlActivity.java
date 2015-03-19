@@ -21,22 +21,7 @@ public class ControlActivity extends BaseActivity {
         switch (v.getId()) {
         case R.id.control_act_get_task:
             String requestMsg = appendRequest(Constant.GETTASK, mBundleResult);
-            sendRequest(requestMsg, false, null, new OnRequestStateListener() {
-                
-                @Override
-                public void onRequestSuccess(String result) {
-                    if(result.contains(Constant.GETTASK_RESULT_SUCCESS)){
-                        Bundle pBundle = new Bundle();
-                        pBundle.putString(Constant.GETTASK_RESULT, result);
-                        openActivity(TaskListActivity.class, pBundle);
-                    }
-                }
-                
-                @Override
-                public void onRequestFailed() {
-                    showLongToast("request failed !!! ");
-                }
-            });
+            sendRequest(requestMsg);
             break;
         case R.id.control_act_get_img:
             openActivity(UnLoadImageDetial.class);
@@ -60,6 +45,18 @@ public class ControlActivity extends BaseActivity {
     @Override
     protected int getLayoutId() {
         return R.layout.activity_control;
+    }
+    @Override
+    public void onFailed() {
+        showLongToast("request failed !!! ");
+    }
+    @Override
+    public void onSuccess(String result) {
+        if(result.contains(Constant.GETTASK_RESULT_SUCCESS)){
+            Bundle pBundle = new Bundle();
+            pBundle.putString(Constant.GETTASK_RESULT, result);
+            openActivity(TaskListActivity.class, pBundle);
+        }
     }
     
     

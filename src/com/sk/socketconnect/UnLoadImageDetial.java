@@ -1,10 +1,8 @@
 package com.sk.socketconnect;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -12,12 +10,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.sk.socketconnect.base.BaseActivity;
-import com.sk.socketconnect.interf.OnRequestStateListener;
 import com.sk.socketconnect.utils.Constant;
 
 public class UnLoadImageDetial extends BaseActivity {
@@ -31,7 +29,7 @@ public class UnLoadImageDetial extends BaseActivity {
     private TextView unload_img_act_image_url;
 
     private Bitmap mGetBitmap;
-    
+
     private String choose_image_url;
 
     @Override
@@ -141,12 +139,14 @@ public class UnLoadImageDetial extends BaseActivity {
      *            (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public String getDataColumn(Uri uri, String selection, String[] selectionArgs) {
+    public String getDataColumn(Uri uri, String selection,
+            String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = { column };
         try {
-            cursor = this.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            cursor = this.getContentResolver().query(uri, projection,
+                    selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
@@ -164,7 +164,8 @@ public class UnLoadImageDetial extends BaseActivity {
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
     public boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+        return "com.android.externalstorage.documents".equals(uri
+                .getAuthority());
     }
 
     /**
@@ -173,7 +174,8 @@ public class UnLoadImageDetial extends BaseActivity {
      * @return Whether the Uri authority is DownloadsProvider.
      */
     public boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+        return "com.android.providers.downloads.documents".equals(uri
+                .getAuthority());
     }
 
     /**
@@ -182,7 +184,8 @@ public class UnLoadImageDetial extends BaseActivity {
      * @return Whether the Uri authority is MediaProvider.
      */
     public boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
+        return "com.android.providers.media.documents".equals(uri
+                .getAuthority());
     }
 
     /**
@@ -191,7 +194,8 @@ public class UnLoadImageDetial extends BaseActivity {
      * @return Whether the Uri authority is Google Photos.
      */
     public boolean isGooglePhotosUri(Uri uri) {
-        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+        return "com.google.android.apps.photos.content".equals(uri
+                .getAuthority());
     }
 
     // startActivityForResult(getAlbum, IMAGE_CODE);
@@ -209,12 +213,15 @@ public class UnLoadImageDetial extends BaseActivity {
         if (requestCode == IMAGE_CODE) {
             try {
                 Uri originalUri = data.getData();
-                mGetBitmap = MediaStore.Images.Media.getBitmap(resolver, originalUri);
+                mGetBitmap = MediaStore.Images.Media.getBitmap(resolver,
+                        originalUri);
 
                 // get image url
                 String[] proj = { MediaStore.Images.Media.DATA };
-                Cursor cursor = managedQuery(originalUri, proj, null, null, null);
-                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                Cursor cursor = managedQuery(originalUri, proj, null, null,
+                        null);
+                int column_index = cursor
+                        .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 cursor.moveToFirst();
                 choose_image_url = cursor.getString(column_index);
                 unload_img_act_image_url.setText(choose_image_url);
@@ -227,7 +234,8 @@ public class UnLoadImageDetial extends BaseActivity {
             printLog("ActivityResult resultCode IMAGE_CODE_KITKAT");
             try {
                 Uri originalUri = data.getData();
-                mGetBitmap = MediaStore.Images.Media.getBitmap(resolver, originalUri);
+                mGetBitmap = MediaStore.Images.Media.getBitmap(resolver,
+                        originalUri);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -241,62 +249,9 @@ public class UnLoadImageDetial extends BaseActivity {
     private void unLoadBitmap(Bitmap bm) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        
-        String requestMsg = "{"+Constant.UNLOADIMAGE_START+"}";
-        sendRequest(requestMsg, false, null, new OnRequestStateListener() {
 
-            @Override
-            public void onRequestSuccess(String result) {
-                // TODO Auto-generated method stub
-                printLog("result === > " + result);
-                if(Constant.UNLOADIMAGE_START_SUCCESS.equals(result)){
-                    InputStream mis = null;
-                    try {
-                        mis = new FileInputStream(choose_image_url);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                       
-                    if( mis == null){
-                        printLog(" FileInputStream = null ");
-                        return;
-                    }
-                    sendRequest(null, true, mis, new OnRequestStateListener() {
-                        @Override
-                        public void onRequestSuccess(String result) {
-                            if("_SEND_IMAGE_SUCCESS_".equals(result)){
-                                sendRequest("{_IMAGE_END_}", false, null, new OnRequestStateListener() {
-                                    
-                                    @Override
-                                    public void onRequestSuccess(String result) {
-                                        // TODO Auto-generated method stub
-                                        
-                                    }
-                                    
-                                    @Override
-                                    public void onRequestFailed() {
-                                        // TODO Auto-generated method stub
-                                        
-                                    }
-                                });
-                            }
-                        }
-                        
-                        @Override
-                        public void onRequestFailed() {
-                            // TODO Auto-generated method stub
-                            
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onRequestFailed() {
-                // TODO Auto-generated method stub
-
-            }
-        });
+        String requestMsg = "{" + Constant.UNLOADIMAGE_START + "}";
+        sendRequest(requestMsg);
     }
 
     public String selectImagePath(Intent data) {
@@ -306,12 +261,14 @@ public class UnLoadImageDetial extends BaseActivity {
             String uriStr = selectedImage.toString();
             String path = uriStr.substring(10, uriStr.length());
             if (path.startsWith("com.sec.android.gallery3d")) {
-                printLog("It's auto backup pic path:" + selectedImage.toString());
+                printLog("It's auto backup pic path:"
+                        + selectedImage.toString());
                 return null;
             }
         }
         String[] filePathColumn = { MediaStore.Images.Media.DATA };
-        Cursor cursor = this.getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+        Cursor cursor = this.getContentResolver().query(selectedImage,
+                filePathColumn, null, null, null);
         cursor.moveToFirst();
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
         String picturePath = cursor.getString(columnIndex);
@@ -331,6 +288,31 @@ public class UnLoadImageDetial extends BaseActivity {
     @Override
     protected int getLayoutId() {
         return R.layout.activity_unload_image_detial;
+    }
+
+    @Override
+    public void onFailed() {
+        Log.i(this.getClass().getSimpleName(), "result === > failed");
+        showShortToast("unload fail");
+    }
+
+    @Override
+    public void onSuccess(String result) {
+        printLog("result === > " + result);
+        Log.i(this.getClass().getSimpleName(), "result === > " + result);
+        if (Constant.UNLOADIMAGE_START_SUCCESS.equals(result)) {
+            File mFile = new File(choose_image_url);
+            Log.i(this.getClass().getSimpleName(), "start unload pic stream ");
+            sendRequest(mFile);
+        }
+        if (Constant.UNLOADIMAGE_SUCCESS.equals(result)) {
+            sendRequest("{_IMAGE_END_}");
+        }
+        if ("_SERVER_CLOSE_".equals(result)){
+            showShortToast(result); 
+        }else{
+            showShortToast(result); 
+        }
     }
 
 }
