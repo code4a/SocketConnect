@@ -1,18 +1,16 @@
 package com.sk.socketconnect;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.EditText;
@@ -31,8 +29,10 @@ public class UnLoadImageDetial extends BaseActivity {
     private final int IMAGE_CODE = 101;
     private final int IMAGE_CODE_KITKAT = 102;
     private TextView unload_img_act_image_url;
-    
+
     private Bitmap mGetBitmap;
+    
+    private String choose_image_url;
 
     @Override
     public void onClick(View v) {
@@ -41,9 +41,9 @@ public class UnLoadImageDetial extends BaseActivity {
             getImageUrl();
             break;
         case R.id.unload_img_act_unload:
-            if(mGetBitmap == null){
+            if (mGetBitmap == null) {
                 showShortToast("please choose image");
-            }else{
+            } else {
                 unLoadBitmap(mGetBitmap);
             }
             break;
@@ -63,89 +63,90 @@ public class UnLoadImageDetial extends BaseActivity {
             startActivityForResult(getAlbum, IMAGE_CODE);
         }
     }
-    
-//    public String getPath(final Uri uri) {
-//        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-//        // DocumentProvider
-//        if (isKitKat && DocumentsContract.isDocumentUri(this, uri)) {
-//            // ExternalStorageProvider
-//            if (isExternalStorageDocument(uri)) {
-//                final String docId = DocumentsContract.getDocumentId(uri);
-//                final String[] split = docId.split(":");
-//                final String type = split[0];
-//                if ("primary".equalsIgnoreCase(type)) {
-//                    return Environment.getExternalStorageDirectory() + "/" + split[1];
-//                }
-//            }
-//            // DownloadsProvider
-//            else if (isDownloadsDocument(uri)) {
-//
-//                final String id = DocumentsContract.getDocumentId(uri);
-//                final Uri contentUri = ContentUris.withAppendedId(
-//                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-//
-//                return getDataColumn(contentUri, null, null);
-//            }
-//            // MediaProvider
-//            else if (isMediaDocument(uri)) {
-//                final String docId = DocumentsContract.getDocumentId(uri);
-//                final String[] split = docId.split(":");
-//                final String type = split[0];
-//
-//                Uri contentUri = null;
-//                if ("image".equals(type)) {
-//                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//                } else if ("video".equals(type)) {
-//                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-//                } else if ("audio".equals(type)) {
-//                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//                }
-//
-//                final String selection = "_id=?";
-//                final String[] selectionArgs = new String[] {
-//                        split[1]
-//                };
-//
-//                return getDataColumn(contentUri, selection, selectionArgs);
-//            }
-//        }
-//        // MediaStore (and general)
-//        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-//
-//            // Return the remote address
-//            if (isGooglePhotosUri(uri))
-//                return uri.getLastPathSegment();
-//
-//            return getDataColumn(uri, null, null);
-//        }
-//        // File
-//        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-//            return uri.getPath();
-//        }
-//
-//        return null;
-//    }
+
+    // public String getPath(final Uri uri) {
+    // final boolean isKitKat = Build.VERSION.SDK_INT >=
+    // Build.VERSION_CODES.KITKAT;
+    // // DocumentProvider
+    // if (isKitKat && DocumentsContract.isDocumentUri(this, uri)) {
+    // // ExternalStorageProvider
+    // if (isExternalStorageDocument(uri)) {
+    // final String docId = DocumentsContract.getDocumentId(uri);
+    // final String[] split = docId.split(":");
+    // final String type = split[0];
+    // if ("primary".equalsIgnoreCase(type)) {
+    // return Environment.getExternalStorageDirectory() + "/" + split[1];
+    // }
+    // }
+    // // DownloadsProvider
+    // else if (isDownloadsDocument(uri)) {
+    //
+    // final String id = DocumentsContract.getDocumentId(uri);
+    // final Uri contentUri = ContentUris.withAppendedId(
+    // Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+    //
+    // return getDataColumn(contentUri, null, null);
+    // }
+    // // MediaProvider
+    // else if (isMediaDocument(uri)) {
+    // final String docId = DocumentsContract.getDocumentId(uri);
+    // final String[] split = docId.split(":");
+    // final String type = split[0];
+    //
+    // Uri contentUri = null;
+    // if ("image".equals(type)) {
+    // contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    // } else if ("video".equals(type)) {
+    // contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+    // } else if ("audio".equals(type)) {
+    // contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+    // }
+    //
+    // final String selection = "_id=?";
+    // final String[] selectionArgs = new String[] {
+    // split[1]
+    // };
+    //
+    // return getDataColumn(contentUri, selection, selectionArgs);
+    // }
+    // }
+    // // MediaStore (and general)
+    // else if ("content".equalsIgnoreCase(uri.getScheme())) {
+    //
+    // // Return the remote address
+    // if (isGooglePhotosUri(uri))
+    // return uri.getLastPathSegment();
+    //
+    // return getDataColumn(uri, null, null);
+    // }
+    // // File
+    // else if ("file".equalsIgnoreCase(uri.getScheme())) {
+    // return uri.getPath();
+    // }
+    //
+    // return null;
+    // }
 
     /**
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
-     *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
-     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * 
+     * @param context
+     *            The context.
+     * @param uri
+     *            The Uri to query.
+     * @param selection
+     *            (Optional) Filter used in the query.
+     * @param selectionArgs
+     *            (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public String getDataColumn(Uri uri, String selection,
-            String[] selectionArgs) {
+    public String getDataColumn(Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
-        final String[] projection = {
-                column
-        };
+        final String[] projection = { column };
         try {
-            cursor = this.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
+            cursor = this.getContentResolver().query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
@@ -157,9 +158,9 @@ public class UnLoadImageDetial extends BaseActivity {
         return null;
     }
 
-
     /**
-     * @param uri The Uri to check.
+     * @param uri
+     *            The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
     public boolean isExternalStorageDocument(Uri uri) {
@@ -167,7 +168,8 @@ public class UnLoadImageDetial extends BaseActivity {
     }
 
     /**
-     * @param uri The Uri to check.
+     * @param uri
+     *            The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
     public boolean isDownloadsDocument(Uri uri) {
@@ -175,7 +177,8 @@ public class UnLoadImageDetial extends BaseActivity {
     }
 
     /**
-     * @param uri The Uri to check.
+     * @param uri
+     *            The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
     public boolean isMediaDocument(Uri uri) {
@@ -183,7 +186,8 @@ public class UnLoadImageDetial extends BaseActivity {
     }
 
     /**
-     * @param uri The Uri to check.
+     * @param uri
+     *            The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
     public boolean isGooglePhotosUri(Uri uri) {
@@ -200,7 +204,7 @@ public class UnLoadImageDetial extends BaseActivity {
             printLog("ActivityResult resultCode error");
             return;
         }
-        //Bitmap bm = null;
+        // Bitmap bm = null;
         ContentResolver resolver = getContentResolver();
         if (requestCode == IMAGE_CODE) {
             try {
@@ -212,39 +216,85 @@ public class UnLoadImageDetial extends BaseActivity {
                 Cursor cursor = managedQuery(originalUri, proj, null, null, null);
                 int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 cursor.moveToFirst();
-                String choose_image_url = cursor.getString(column_index);
+                choose_image_url = cursor.getString(column_index);
                 unload_img_act_image_url.setText(choose_image_url);
 
             } catch (IOException e) {
                 printLog(e.toString());
             }
         }
-        if (requestCode == IMAGE_CODE_KITKAT){
-            
+        if (requestCode == IMAGE_CODE_KITKAT) {
+            printLog("ActivityResult resultCode IMAGE_CODE_KITKAT");
+            try {
+                Uri originalUri = data.getData();
+                mGetBitmap = MediaStore.Images.Media.getBitmap(resolver, originalUri);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
-//        if(bm != null){
-//            unLoadBitmap(bm);
-//        }
+        // if(bm != null){
+        // unLoadBitmap(bm);
+        // }
     }
 
     private void unLoadBitmap(Bitmap bm) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        String bitmapStr = baos.toString();
-        printLog("bitmapStr.length() ====> " + bitmapStr.length());
-        String requestMsg = appendRequest(Constant.UNLOADIMAGE, bitmapStr);
-        sendRequest(requestMsg, new OnRequestStateListener() {
- 
+        
+        String requestMsg = "{"+Constant.UNLOADIMAGE_START+"}";
+        sendRequest(requestMsg, false, null, new OnRequestStateListener() {
+
             @Override
             public void onRequestSuccess(String result) {
                 // TODO Auto-generated method stub
                 printLog("result === > " + result);
+                if(Constant.UNLOADIMAGE_START_SUCCESS.equals(result)){
+                    InputStream mis = null;
+                    try {
+                        mis = new FileInputStream(choose_image_url);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                       
+                    if( mis == null){
+                        printLog(" FileInputStream = null ");
+                        return;
+                    }
+                    sendRequest(null, true, mis, new OnRequestStateListener() {
+                        @Override
+                        public void onRequestSuccess(String result) {
+                            if("_SEND_IMAGE_SUCCESS_".equals(result)){
+                                sendRequest("{_IMAGE_END_}", false, null, new OnRequestStateListener() {
+                                    
+                                    @Override
+                                    public void onRequestSuccess(String result) {
+                                        // TODO Auto-generated method stub
+                                        
+                                    }
+                                    
+                                    @Override
+                                    public void onRequestFailed() {
+                                        // TODO Auto-generated method stub
+                                        
+                                    }
+                                });
+                            }
+                        }
+                        
+                        @Override
+                        public void onRequestFailed() {
+                            // TODO Auto-generated method stub
+                            
+                        }
+                    });
+                }
             }
-            
+
             @Override
             public void onRequestFailed() {
                 // TODO Auto-generated method stub
-                
+
             }
         });
     }

@@ -1,5 +1,7 @@
 package com.sk.socketconnect.base;
 
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -35,8 +37,8 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
         return requestMsg.append("{").append(action).append(",").append(requestMessage)/*.append(",").append(trim2)*/.append("}").toString();
     }
 
-    protected void sendRequest(String requestMsg, final OnRequestStateListener orsl) {
-        JSocketClientHelper.getInstance().requestSocketGetResult(requestMsg, new OnRequestSockerServerListener() {
+    protected void sendRequest(String requestMsg, boolean isExtraStream, InputStream mis, final OnRequestStateListener orsl) {
+        JSocketClientHelper.getInstance().requestSocketGetResult(requestMsg, isExtraStream, mis, new OnRequestSockerServerListener() {
 
             @Override
             public void onRequestFailed() {

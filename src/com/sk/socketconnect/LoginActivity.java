@@ -26,7 +26,7 @@ public class LoginActivity extends BaseActivity {
         case R.id.login_act_login:
             String loginMsg = main_act_username.getText().toString().trim() + "," + main_act_password.getText().toString().trim();
             String requestMsg = appendRequest(Constant.LOGIN, loginMsg);
-            sendRequest(requestMsg, new OnRequestStateListener() {
+            sendRequest(requestMsg, false, null, new OnRequestStateListener() {
                 @Override
                 public void onRequestSuccess(String result) {
                     

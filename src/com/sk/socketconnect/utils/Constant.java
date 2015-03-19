@@ -2,7 +2,7 @@ package com.sk.socketconnect.utils;
 
 public interface Constant {
 
-    String HOST = "192.168.1.112";
+    String HOST = "10.2.48.45";
     int PORT = 3999;
     
     String ENCODING = "UTF-8";
@@ -12,6 +12,7 @@ public interface Constant {
     String GETTASK = "GETTASKLIST";
     String GETTASKPOINT = "GETTASKPOINT";
     String UNLOADIMAGE = "_IMAGE_";
+    String UNLOADIMAGE_START = "_IMAGE_START_";
 
     /***************************** Bundle Key **********************************/
     String LOGIN_RESULT = "login_result";
@@ -23,5 +24,6 @@ public interface Constant {
     String LOGIN_RESULT_FAILED = "_MYSQL_LOGIN_NO_";
     String GETTASK_RESULT_SUCCESS = "TASKLIST";
     String GETTASKPOINT_SUCCESS = "TASKPOINTLIST";
+    String UNLOADIMAGE_START_SUCCESS = "_IMAGE_READY_";
     
 }

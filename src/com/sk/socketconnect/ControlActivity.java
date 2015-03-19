@@ -21,7 +21,7 @@ public class ControlActivity extends BaseActivity {
         switch (v.getId()) {
         case R.id.control_act_get_task:
             String requestMsg = appendRequest(Constant.GETTASK, mBundleResult);
-            sendRequest(requestMsg, new OnRequestStateListener() {
+            sendRequest(requestMsg, false, null, new OnRequestStateListener() {
                 
                 @Override
                 public void onRequestSuccess(String result) {

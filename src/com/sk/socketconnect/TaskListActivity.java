@@ -38,7 +38,7 @@ public class TaskListActivity extends BaseActivity {
                 String[] itemMsgArr = itemMsg.split(" ");
 
                 String requestMsg = appendRequest(Constant.GETTASKPOINT, itemMsgArr[1] + "," + itemMsgArr[2]);
-                sendRequest(requestMsg, new OnRequestStateListener() {
+                sendRequest(requestMsg, false, null, new OnRequestStateListener() {
                     @Override
                     public void onRequestSuccess(String result) {
                         // TASKPOINTLIST，x y,x y
