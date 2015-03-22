@@ -18,16 +18,20 @@ public class ControlActivity extends BaseActivity {
     }
     @Override
     public void onClick(View v) {
+        Bundle pBundle = new Bundle();
+        pBundle.putString(Constant.USER_ID, mBundleResult);
         switch (v.getId()) {
         case R.id.control_act_get_task:
             String requestMsg = appendRequest(Constant.GETTASK, mBundleResult);
             sendRequest(requestMsg);
             break;
         case R.id.control_act_get_img:
-            openActivity(UnLoadImageDetial.class);
+            openActivity(UnLoadImageDetial.class, pBundle);
             break;
         case R.id.control_act_chat:
-            
+//            Bundle pBundle = new Bundle();
+//            pBundle.putString(Constant.USER_ID, mBundleResult);
+            openActivity(IMChatActivity.class, pBundle);
             break;
 
         default:

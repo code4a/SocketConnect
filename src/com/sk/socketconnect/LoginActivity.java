@@ -1,6 +1,7 @@
 package com.sk.socketconnect;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,9 +25,15 @@ public class LoginActivity extends BaseActivity {
     public void onClick(View v) {
         switch (v.getId()) {
         case R.id.login_act_login:
-            String loginMsg = main_act_username.getText().toString().trim() + "," + main_act_password.getText().toString().trim();
-            String requestMsg = appendRequest(Constant.LOGIN, loginMsg);
-            sendRequest(requestMsg);
+            String username = main_act_username.getText().toString().trim();
+            String password = main_act_password.getText().toString().trim();
+            if(!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)){
+                String loginMsg = username + "," + password;
+                String requestMsg = appendRequest(Constant.LOGIN, loginMsg);
+                sendRequest(requestMsg);
+            }else{
+                showShortToast("请输入用户名或密码！");
+            }
             break;
 
         default:
@@ -60,8 +67,9 @@ public class LoginActivity extends BaseActivity {
             Bundle pBundle = new Bundle();
             pBundle.putString(Constant.LOGIN_RESULT, resultArr[1]);
             openActivity(ControlActivity.class, pBundle);
+            finish();
         }else{
-            
+            showShortToast("登陆失败" + result);
         }
     }
 

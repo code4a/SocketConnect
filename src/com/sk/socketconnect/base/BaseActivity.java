@@ -1,12 +1,10 @@
 package com.sk.socketconnect.base;
 
-import java.io.File;
-
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,16 +14,18 @@ import com.sk.socketconnect.interf.OnRequestSockerServerListener;
 import com.sk.socketconnect.interf.OnRequestStateListener;
 import com.sk.socketconnect.socket.JSocketClientHelper;
 
-public abstract class BaseActivity extends Activity implements OnClickListener,
-        OnRequestStateListener {
+public abstract class BaseActivity extends FragmentActivity implements
+        OnClickListener, OnRequestStateListener {
 
     protected Dialog mDialog;
+
+    // protected boolean isIMTalk = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(getLayoutId());
 
+        setContentView(getLayoutId());
         mFindViewByIdAndSetListener();
     }
 
@@ -44,10 +44,10 @@ public abstract class BaseActivity extends Activity implements OnClickListener,
                 /* .append(",").append(trim2) */.append("}").toString();
     }
 
-//    protected void sendRequest(String requestMsg) {
-//        JSocketClientHelper.getInstance().requestSocketGetResult(requestMsg,
-//                orssl);
-//    }
+    // protected void sendRequest(String requestMsg) {
+    // JSocketClientHelper.getInstance().requestSocketGetResult(requestMsg,
+    // orssl);
+    // }
 
     protected void sendRequest(Object obj) {
         JSocketClientHelper.getInstance().requestSocketGetResult(obj, orssl);
@@ -141,6 +141,10 @@ public abstract class BaseActivity extends Activity implements OnClickListener,
 
     protected <T extends View> T $(int resId) {
         return (T) findViewById(resId);
+    }
+
+    protected <T extends View> T $(View v, int resId) {
+        return (T) v.findViewById(resId);
     }
 
     protected void printLog(String log) {

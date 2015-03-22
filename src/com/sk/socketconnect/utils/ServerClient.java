@@ -61,6 +61,7 @@ class FileClient // 客户端
         sockOut.write(fileName.getBytes());
 
         String serverInfo = servInfoBack(sock); // 反馈的信息:服务端是否获取文件名并创建文件成功
+        s.op("接收到服务器响应:" + serverInfo);
         if (serverInfo.equals("{_IMAGE_READY_}")) // 服务端说已经准备接收文件,发吧
         {
             byte[] bufFile = new byte[1024];
@@ -87,12 +88,12 @@ class FileClient // 客户端
 
     public String servInfoBack(Socket sock) throws Exception // 读取服务端的反馈信息
     {
-//        InputStream sockIn = sock.getInputStream(); // 定义socket输入流
-        BufferedReader sockIn = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-        //byte[] bufIn = new byte[1024];
-        return sockIn.readLine(/*bufIn*/); // 将服务端返回的信息写入bufIn字节缓冲区
-//        String info = new String(bufIn, 0, lenIn);
-//        return info;
+        InputStream sockIn = sock.getInputStream(); // 定义socket输入流
+//        BufferedReader sockIn = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+        byte[] bufIn = new byte[1024];
+        int lenIn = sockIn.read(bufIn); // 将服务端返回的信息写入bufIn字节缓冲区
+        String info = new String(bufIn, 0, lenIn);
+        return info;
     }
 }
 
