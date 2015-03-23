@@ -5,7 +5,6 @@
     android:orientation="vertical" >
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="50dip"
         android:orientation="horizontal" >
@@ -51,7 +50,6 @@
     </LinearLayout>
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="50dip"
         android:orientation="horizontal" >
@@ -92,7 +90,6 @@
     </LinearLayout>
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/city_list"
         android:layout_width="match_parent"
         android:layout_height="50dip"
@@ -118,7 +115,6 @@
     </LinearLayout>
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/citylist_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -146,7 +142,6 @@
     </LinearLayout>
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/localmap_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -3,6 +3,7 @@ package com.sk.socketconnect.utils;
 public interface Constant {
 
     String HOST = "115.28.142.17";
+//    String HOST = "192.168.1.114";
     int PORT = 3999;
     
     String ENCODING = "UTF-8";

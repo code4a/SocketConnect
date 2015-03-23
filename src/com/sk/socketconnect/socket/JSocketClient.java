@@ -17,7 +17,7 @@ public class JSocketClient {
     public static final JSocketClient mInstance = new JSocketClient();
     private static final String TAG = "JSocketClient";
 
-    private Socket mIMScoket;
+    private static Socket mIMScoket;
     private static boolean isSocketOpen = false;
     private boolean isTalking = false;
 
@@ -48,7 +48,7 @@ public class JSocketClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(lenIn < 0){
+        if (lenIn < 0) {
             return "";
         }
         String info = new String(bufIn, 0, lenIn);
@@ -60,6 +60,7 @@ public class JSocketClient {
             mIMScoket = new Socket(Constant.HOST, Constant.PORT);
             printLog("创建聊天 socket");
             if (mIMScoket != null) {
+                mIMScoket.setKeepAlive(true);
                 isSocketOpen = true;
                 printLog("创建聊天 socket 成功");
             }
@@ -73,7 +74,9 @@ public class JSocketClient {
         if (isSocketOpen) {
             try {
                 isTalking = false;
+                mIMScoket.setKeepAlive(false);
                 mIMScoket.close();
+                mIMScoket = null;
                 printLog("成功关闭聊天 socket");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -89,30 +92,33 @@ public class JSocketClient {
     public void onTalkSendMsg(OnIMTalkMsgTypeListener moimtmtl) {
         // int ret = -1;
         try {
+            if (mIMScoket == null) {
+                isReady();
+            }
             OutputStream sockOut = mIMScoket.getOutputStream();
 
-//            InputStream sockIn = mIMScoket.getInputStream();
-//            byte[] bufIn = new byte[1024];
-//            int lenIn = 0;
+            // InputStream sockIn = mIMScoket.getInputStream();
+            // byte[] bufIn = new byte[1024];
+            // int lenIn = 0;
             if (moimtmtl == null) {
                 return;
             }
             String sendMsg = null;
-//            String receiveMsg = null;
+            // String receiveMsg = null;
             printLog("获取io流，发送消息");
             while (isTalking) {
                 sendMsg = moimtmtl.onIMSendMsg();
-                //printLog("检测消息");
-                if (sendMsg != null /*&& !"".equals(sendMsg)*/) {
+                // printLog("检测消息");
+                if (sendMsg != null /* && !"".equals(sendMsg) */) {
                     printLog("获取到发送端消息，发送消息  =====>" + sendMsg);
                     sockOut.write(sendMsg.getBytes());
                 }
-//                lenIn = sockIn.read(bufIn);
-//                receiveMsg = new String(bufIn, 0, lenIn);
-//                if (receiveMsg != null && !"".equals(receiveMsg)) {
-//                    printLog("接收到服务端消息");
-//                    moimtmtl.onIMReceiveMsg(receiveMsg);
-//                }
+                // lenIn = sockIn.read(bufIn);
+                // receiveMsg = new String(bufIn, 0, lenIn);
+                // if (receiveMsg != null && !"".equals(receiveMsg)) {
+                // printLog("接收到服务端消息");
+                // moimtmtl.onIMReceiveMsg(receiveMsg);
+                // }
                 // ret = 0;
             }
         } catch (IOException e) {
@@ -120,8 +126,12 @@ public class JSocketClient {
         }
         // return ret;
     }
+
     public void onTalkReceiveMsg(OnIMTalkMsgTypeListener moimtmtl) {
         try {
+            if (mIMScoket == null) {
+                isReady();
+            }
             InputStream sockIn = mIMScoket.getInputStream();
             byte[] bufIn = new byte[1024];
             int lenIn = 0;
@@ -147,7 +157,7 @@ public class JSocketClient {
         String serverInfo = "";
         try {
             Socket sock = new Socket(Constant.HOST, Constant.PORT);
-            sock.setSoTimeout(8*1000);
+            sock.setSoTimeout(8 * 1000);
             OutputStream sockOut = sock.getOutputStream();
             if (obj instanceof String) {
                 sockOut.write(((String) obj).getBytes());
@@ -159,9 +169,9 @@ public class JSocketClient {
                 boolean isSucress = sendFileIOStream(((File) obj), sock);
                 if (isSucress) {
                     sockOut.write("{_IMAGE_END_}".getBytes());
-                }/*else{
-                    sockOut.write("{_IMAGE_END_FAIL_}".getBytes());
-                }*/
+                }/*
+                  * else{ sockOut.write("{_IMAGE_END_FAIL_}".getBytes()); }
+                  */
             }
             serverInfo = servInfoBack(sock);
             sock.shutdownOutput();
@@ -187,20 +197,20 @@ public class JSocketClient {
             if (serverInfo.equals("{_IMAGE_READY_}")) {
                 byte[] bufFile = new byte[1024];
                 int len = 0;
-//                while (true) {
-//                    len = fis.read(bufFile);
-//                    if (len != -1) {
-//                        sockOut.write(bufFile, 0, len); // 将从硬盘上读取的字节数据写入socket输出流
-//                    } else {
-//                        break;
-//                    }
-//                }
-                while ((len = fis.read(bufFile))!=-1) {
+                // while (true) {
+                // len = fis.read(bufFile);
+                // if (len != -1) {
+                // sockOut.write(bufFile, 0, len); // 将从硬盘上读取的字节数据写入socket输出流
+                // } else {
+                // break;
+                // }
+                // }
+                while ((len = fis.read(bufFile)) != -1) {
                     sockOut.write(bufFile, 0, len); // 将从硬盘上读取的字节数据写入socket输出流
                 }
-                //Thread.sleep(2000);
+                // Thread.sleep(2000);
             }
-            //sockOut.write("{_IMAGE_END_}".getBytes());
+            // sockOut.write("{_IMAGE_END_}".getBytes());
         } catch (Exception e) {
             Log.i(TAG, "log is : " + e.getMessage());
             System.out.println("Error" + e);
