@@ -97,6 +97,32 @@
             android:src="@drawable/ic_launcher"
             android:gravity="center" />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/unload_img_act_get_point_line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Get Route" />
+
+        <EditText
+            android:id="@+id/unload_img_act_route_line_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:editable="false"
+            android:focusable="false"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="error" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -111,6 +137,13 @@
             android:layout_gravity="bottom"
             android:layout_weight="1"
             android:text="信息上传" />
+        <Button
+            android:id="@+id/unload_img_act_unload_task"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="路线上传" />
 
         <Button
             android:id="@+id/unload_img_act_unload_pic"

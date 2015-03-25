@@ -55,7 +55,7 @@ public class JSocketClientHelper {
         }).start();
     }
 
-    public void requestSocketGetResult(Object requestMsg, /*
+    public void requestSocketGetResult(String type, Object requestMsg, /*
                                                            * final boolean
                                                            * isExtraStream,
                                                            * final InputStream
@@ -72,7 +72,7 @@ public class JSocketClientHelper {
             @Override
             protected String doInBackground(Object... requestMsg) {
                 return JSocketClient.getInstance()
-                        .getServerMsg(requestMsg[0]/* , isExtraStream, mis */);
+                        .getServerMsg((String)requestMsg[0], requestMsg[1]/* , isExtraStream, mis */);
             }
 
             @Override
@@ -89,7 +89,7 @@ public class JSocketClientHelper {
                     orssl.onRequestFailed();
                 }
             }
-        }.execute(new Object[] { requestMsg });
+        }.execute(new Object[] {type, requestMsg });
     }
 
     private OnReceiveMessageStateListener ormsl;

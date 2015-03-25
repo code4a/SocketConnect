@@ -30,7 +30,7 @@ public class LoginActivity extends BaseActivity {
             if(!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password)){
                 String loginMsg = username + "," + password;
                 String requestMsg = appendRequest(Constant.LOGIN, loginMsg);
-                sendRequest(requestMsg);
+                sendRequestMsg(requestMsg);
             }else{
                 showShortToast("请输入用户名或密码！");
             }

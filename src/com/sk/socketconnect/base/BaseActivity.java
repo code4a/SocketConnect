@@ -13,9 +13,9 @@ import android.widget.Toast;
 import com.sk.socketconnect.interf.OnRequestSockerServerListener;
 import com.sk.socketconnect.interf.OnRequestStateListener;
 import com.sk.socketconnect.socket.JSocketClientHelper;
+import com.sk.socketconnect.utils.Constant;
 
-public abstract class BaseActivity extends FragmentActivity implements
-        OnClickListener, OnRequestStateListener {
+public abstract class BaseActivity extends FragmentActivity implements OnClickListener, OnRequestStateListener {
 
     protected Dialog mDialog;
 
@@ -39,9 +39,8 @@ public abstract class BaseActivity extends FragmentActivity implements
                                                                         * trim2
                                                                         */) {
         StringBuffer requestMsg = new StringBuffer();
-        return requestMsg.append("{").append(action).append(",")
-                .append(requestMessage)
-                /* .append(",").append(trim2) */.append("}").toString();
+        return requestMsg.append("{").append(action).append(",").append(requestMessage)
+        /* .append(",").append(trim2) */.append("}").toString();
     }
 
     // protected void sendRequest(String requestMsg) {
@@ -49,8 +48,20 @@ public abstract class BaseActivity extends FragmentActivity implements
     // orssl);
     // }
 
-    protected void sendRequest(Object obj) {
-        JSocketClientHelper.getInstance().requestSocketGetResult(obj, orssl);
+    protected void sendRequestMsg(Object obj) {
+        sendRequest(Constant.TYPE_MSG, obj);
+    }
+
+    protected void sendRequestImg(Object obj) {
+        sendRequest(Constant.TYPE_IMG, obj);
+    }
+
+    protected void sendRequestFile(Object obj) {
+        sendRequest(Constant.TYPE_FILE, obj);
+    }
+
+    private void sendRequest(String type, Object obj) {
+        JSocketClientHelper.getInstance().requestSocketGetResult(type, obj, orssl);
     }
 
     private OnRequestSockerServerListener orssl = new OnRequestSockerServerListener() {

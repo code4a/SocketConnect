@@ -38,9 +38,11 @@ import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.sk.socketconnect.base.BaseActivity;
 import com.sk.socketconnect.utils.Constant;
+import com.sk.socketconnect.utils.PersistTool;
+import com.sk.socketconnect.utils.PixelUtil;
+import com.sk.socketconnect.utils.TimeUtil;
 
-public class JBaiduMapActivity extends BaseActivity implements
-        OnGetGeoCoderResultListener {
+public class JBaiduMapActivity extends BaseActivity implements OnGetGeoCoderResultListener {
 
     private MapView mMapView = null;
     private BaiduMap mBaiduMap;
@@ -69,19 +71,18 @@ public class JBaiduMapActivity extends BaseActivity implements
     private long recordLastLocTime;
     BitmapDescriptor bd = BitmapDescriptorFactory
             .fromResource(R.drawable.icon_gcoding);
+    private PersistTool persistTool;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        persistTool = PersistTool.getInstance(JBaiduMapActivity.this);
         Intent intent = getIntent();
         if (intent.hasExtra("x") && intent.hasExtra("y")) {
             // 当用intent参数时，设置中心点为指定点
             Bundle b = intent.getExtras();
             LatLng p = new LatLng(b.getDouble("y"), b.getDouble("x"));
-            mMapView = new MapView(this,
-                    new BaiduMapOptions().mapStatus(new MapStatus.Builder()
-                            .target(p).build()));
+            mMapView = new MapView(this, new BaiduMapOptions().mapStatus(new MapStatus.Builder().target(p).build()));
         } else {
             mMapView = new MapView(this, new BaiduMapOptions());
         }
@@ -96,57 +97,62 @@ public class JBaiduMapActivity extends BaseActivity implements
         mBaiduMap.setMapStatus(msu);
         // double pointX = 39.963175;
         // double pointY = 116.400244;
-        String pointResult = intent
-                .getStringExtra(Constant.GETTASKPOINT_RESULT);
+        String pointResult = intent.getStringExtra(Constant.GETTASKPOINT_RESULT);
+        String task_id = intent.getStringExtra(Constant.TASK_ID);
+        persistTool.saveString(PersistTool.TASK_ID, task_id);
         if (pointResult != null) {
-            // String[] pointArr = pointResult.split(",");
+            String[] pointArr = pointResult.split(",");
             // for (int i = 0; i < pointArr.length; i++) {
             // String[] pointXY = pointArr[i].split(" ");
             // getMarkPoint(Double.parseDouble(pointXY[0]),
             // Double.parseDouble(pointXY[1]), R.drawable.icon_marka);
             // }
-            String[] pointArr = new String[] { "39.963175 116.400244",
-                    "116.400244 39.963175" };
             if (pointArr != null) {
                 mMarkers = new Marker[pointArr.length];
                 initOverlay(pointArr);
-                // initOverlay("");
+                //initOverlay("");
             }
         }
-        String[] pointArr = new String[] { "39.963175 116.400244",
-                "39.942821 116.369199", "39.939723 116.425541" , "39.906965 116.401394"};
-        mMarkers = new Marker[pointArr.length];
-        initOverlay(pointArr);
-        mBaiduMap
-                .setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+//        String[] pointArr = new String[]{"39.963175 116.400244",
+//                "39.942821 116.369199", "39.939723 116.425541" , "39.906965 116.401394"};
+//        if (pointArr != null) {
+//            mMarkers = new Marker[pointArr.length];
+//            initOverlay(pointArr);
+//            //initOverlay("");
+//        }
+        mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
 
-                    @Override
-                    public boolean onMarkerClick(final Marker marker) {
-                        // if (locationView == null) {
-                        // initPopuButton();
-                        // }
-                        // OnInfoWindowClickListener listener = null;
-                        // button.setText("更改位置");
-                        LatLng ptCenter = marker.getPosition();
-                        // 反Geo搜索
-                        // oiwclistener = new OnInfoWindowClickListener() {
-                        // public void onInfoWindowClick() {
-                        // // TODO
-                        // mBaiduMap.hideInfoWindow();
-                        // }
-                        // };
-                        mSearch.reverseGeoCode(new ReverseGeoCodeOption()
-                                .location(ptCenter));
-                        // LatLng ll = marker.getPosition();
-                        // mInfoWindow = new
-                        // InfoWindow(BitmapDescriptorFactory.fromView(button),
-                        // ll, -47, listener);
-                        // mBaiduMap.showInfoWindow(mInfoWindow);
-                        return true;
-                    }
-                });
+            @Override
+            public boolean onMarkerClick(final Marker marker) {
+                // if (locationView == null) {
+                // initPopuButton();
+                // }
+                // OnInfoWindowClickListener listener = null;
+                // button.setText("更改位置");
+                LatLng ptCenter = marker.getPosition();
+                // 反Geo搜索
+                // oiwclistener = new OnInfoWindowClickListener() {
+                // public void onInfoWindowClick() {
+                // // TODO
+                // mBaiduMap.hideInfoWindow();
+                // }
+                // };
+                mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(ptCenter));
+                // LatLng ll = marker.getPosition();
+                // mInfoWindow = new
+                // InfoWindow(BitmapDescriptorFactory.fromView(button),
+                // ll, -47, listener);
+                // mBaiduMap.showInfoWindow(mInfoWindow);
+                return true;
+            }
+        });
         initLocationData();
     }
+
+    // private void initPopuButton() {
+    // locationView = new Button(getApplicationContext());
+    // locationView.setBackgroundResource(R.drawable.popup);
+    // }
 
     private void initOverlay(String[] pointArr) {
         for (int i = 0; i < pointArr.length; i++) {
@@ -158,19 +164,17 @@ public class JBaiduMapActivity extends BaseActivity implements
             // double pointY = 116.400244;
             LatLng llPoint = new LatLng(pointX, pointY);
             // 构建Marker图标
+            //BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(R.drawable.icon_gcoding);
             OverlayOptions option = new MarkerOptions();
             // 构建MarkerOption，用于在地图上添加Marker
-            ((MarkerOptions) option).position(llPoint).icon(bd).zIndex(9)
-                    .draggable(true);
+            ((MarkerOptions) option).position(llPoint).icon(bd).zIndex(9).draggable(true);
             mMarkers[i] = (Marker) mBaiduMap.addOverlay(option);
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (getIntent() != null
-                && getIntent().getBooleanExtra(Constant.GET_POSITION_INFO,
-                        false)) {
+        if (getIntent() != null && getIntent().getBooleanExtra(Constant.GET_POSITION_INFO, false)) {
             Intent data = new Intent();
             data.putExtra(Constant.CURRENTLOCATIONSTR, currentLocationStr);
             data.putExtra(Constant.CURRENTPOSITONX, currentPositonX);
@@ -240,23 +244,17 @@ public class JBaiduMapActivity extends BaseActivity implements
             case NORMAL:
                 requestLocButton.setText("跟随");
                 mCurrentMode = LocationMode.FOLLOWING;
-                mBaiduMap
-                        .setMyLocationConfigeration(new MyLocationConfiguration(
-                                mCurrentMode, true, mCurrentMarker));
+                mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(mCurrentMode, true, mCurrentMarker));
                 break;
             case COMPASS:
                 requestLocButton.setText("普通");
                 mCurrentMode = LocationMode.NORMAL;
-                mBaiduMap
-                        .setMyLocationConfigeration(new MyLocationConfiguration(
-                                mCurrentMode, true, mCurrentMarker));
+                mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(mCurrentMode, true, mCurrentMarker));
                 break;
             case FOLLOWING:
                 requestLocButton.setText("罗盘");
                 mCurrentMode = LocationMode.COMPASS;
-                mBaiduMap
-                        .setMyLocationConfigeration(new MyLocationConfiguration(
-                                mCurrentMode, true, mCurrentMarker));
+                mBaiduMap.setMyLocationConfigeration(new MyLocationConfiguration(mCurrentMode, true, mCurrentMarker));
                 break;
             }
             break;
@@ -313,11 +311,9 @@ public class JBaiduMapActivity extends BaseActivity implements
                 return;
             int locType = location.getLocType();
             showShortToast("请求结果：" + locType);
-            MyLocationData locData = new MyLocationData.Builder()
-                    .accuracy(location.getRadius())
-                    // 此处设置开发者获取到的方向信息，顺时针0-360
-                    .direction(100).latitude(location.getLatitude())
-                    .longitude(location.getLongitude()).build();
+            MyLocationData locData = new MyLocationData.Builder().accuracy(location.getRadius())
+            // 此处设置开发者获取到的方向信息，顺时针0-360
+                    .direction(100).latitude(location.getLatitude()).longitude(location.getLongitude()).build();
             mBaiduMap.setMyLocationData(locData);
             currentPositonX = location.getLatitude();
             currentPositonY = location.getLongitude();
@@ -345,14 +341,13 @@ public class JBaiduMapActivity extends BaseActivity implements
                         mBaiduMap.hideInfoWindow();
                     }
                 };
-                mInfoWindow = new InfoWindow(
-                        BitmapDescriptorFactory.fromView(locationView),
-                        new LatLng(currentPositonX, currentPositonY), -20,
-                        oiwclistener);
+                mInfoWindow = new InfoWindow(BitmapDescriptorFactory.fromView(locationView), new LatLng(currentPositonX, currentPositonY), -20, oiwclistener);
                 mBaiduMap.showInfoWindow(mInfoWindow);
             }
             // save location
-
+            String currentTime = TimeUtil.longToString(System.currentTimeMillis(), TimeUtil.FORMAT_DATE_TIME);
+            String currentPointXY = currentPositonX + "," +currentPositonY;
+            persistTool.saveString(currentTime, currentPointXY);
         }
 
         public void onReceivePoi(BDLocation poiLocation) {
@@ -387,8 +382,7 @@ public class JBaiduMapActivity extends BaseActivity implements
     @Override
     public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
         if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
-            Toast.makeText(JBaiduMapActivity.this, "抱歉，未能找到结果",
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(JBaiduMapActivity.this, "抱歉，未能找到结果", Toast.LENGTH_LONG).show();
             return;
         } else {
             LatLng location = result.getLocation();
@@ -402,9 +396,7 @@ public class JBaiduMapActivity extends BaseActivity implements
                     mBaiduMap.hideInfoWindow();
                 }
             };
-            mInfoWindow = new InfoWindow(
-                    BitmapDescriptorFactory.fromView(locationView), location,
-                    -47, oiwclistener);
+            mInfoWindow = new InfoWindow(BitmapDescriptorFactory.fromView(locationView), location, -47, oiwclistener);
             mBaiduMap.showInfoWindow(mInfoWindow);
         }
     }

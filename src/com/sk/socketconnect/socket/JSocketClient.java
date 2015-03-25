@@ -31,11 +31,11 @@ public class JSocketClient {
     // public String getServerMsg(String requestMsg) {
     // return onSocketClient(requestMsg);
     // }
-    public String getServerMsg(Object obj) {
+    public String getServerMsg(String type, Object obj) {
         if (obj == null) {
-            return "";
+            return "{file is null}";
         }
-        return onSocketClient(obj);
+        return onSocketClient(type, obj);
     }
 
     private String servInfoBack(Socket sock) {
@@ -49,7 +49,7 @@ public class JSocketClient {
             e.printStackTrace();
         }
         if (lenIn < 0) {
-            return "";
+            return "{500}";
         }
         String info = new String(bufIn, 0, lenIn);
         return info;
@@ -62,6 +62,7 @@ public class JSocketClient {
             if (mIMScoket != null) {
                 mIMScoket.setKeepAlive(true);
                 isSocketOpen = true;
+                mIMScoket.getOutputStream().write("{LOGIN,zxw,123}".getBytes());
                 printLog("创建聊天 socket 成功");
             }
         } catch (Exception e) {
@@ -142,10 +143,14 @@ public class JSocketClient {
             while (isTalking) {
                 printLog("等待接收服务端消息");
                 lenIn = sockIn.read(bufIn);
-                receiveMsg = new String(bufIn, 0, lenIn);
-                if (receiveMsg != null && !"".equals(receiveMsg)) {
-                    printLog("接收到服务端消息 ===========> " + receiveMsg);
-                    moimtmtl.onIMReceiveMsg(receiveMsg);
+                if (lenIn != -1) {
+                    receiveMsg = new String(bufIn, 0, lenIn);
+                    if (receiveMsg != null && !"".equals(receiveMsg)) {
+                        printLog("接收到服务端消息 ===========> " + receiveMsg);
+                        moimtmtl.onIMReceiveMsg(receiveMsg);
+                    }
+                } else {
+                    printLog("服务器关闭服务！！！！！");
                 }
             }
         } catch (IOException e) {
@@ -153,27 +158,46 @@ public class JSocketClient {
         }
     }
 
-    private String onSocketClient(Object obj) {
+    private String onSocketClient(String type, Object obj) {
         String serverInfo = "";
         try {
             Socket sock = new Socket(Constant.HOST, Constant.PORT);
-            sock.setSoTimeout(8 * 1000);
+            sock.setSoTimeout(60 * 1000);
             OutputStream sockOut = sock.getOutputStream();
-            if (obj instanceof String) {
-                sockOut.write(((String) obj).getBytes());
-                // serverInfo = servInfoBack(sock);
-                // return servInfoBack(sock);
+            if (Constant.TYPE_MSG.equals(type)) {
+                if (obj instanceof String) {
+                    sockOut.write(((String) obj).getBytes());
+                    // serverInfo = servInfoBack(sock);
+                    // return servInfoBack(sock);
+                }
             }
             // serverInfo = servInfoBack(sock);
-            if (obj instanceof File) {
-                boolean isSucress = sendFileIOStream(((File) obj), sock);
-                if (isSucress) {
+            if (Constant.TYPE_IMG.equals(type)) {
+                if (obj instanceof File) {
+                    boolean isSucress = sendImageIOStream(((File) obj), sock);
+
                     sockOut.write("{_IMAGE_END_}".getBytes());
-                }/*
-                  * else{ sockOut.write("{_IMAGE_END_FAIL_}".getBytes()); }
-                  */
+                    if (isSucress) {
+                        Log.i(TAG, "send image success image end");
+                    }/*
+                      * else{ sockOut.write("{_IMAGE_END_FAIL_}".getBytes()); }
+                      */
+                }
+            }
+            if (Constant.TYPE_FILE.equals(type)) {
+                if (obj instanceof File) {
+                    boolean isSucress = sendFileIOStream(((File) obj), sock);
+
+                    sockOut.write("{_TASK_END_}".getBytes());
+                    if (isSucress) {
+                        Log.i(TAG, "send task success image end");
+                    }/*
+                      * else{ sockOut.write("{_IMAGE_END_FAIL_}".getBytes()); }
+                      */
+                }
             }
             serverInfo = servInfoBack(sock);
+            Log.i(TAG, "get server msg is : " + serverInfo);
             sock.shutdownOutput();
             sock.close();
         } catch (Exception e) {
@@ -190,10 +214,60 @@ public class JSocketClient {
             OutputStream sockOut = sock.getOutputStream();
 
             // String fileName = mFile.getName();
+            // sockOut.write("{_IMAGE_END_}".getBytes());
+            String fileName = "{_TASK_START_}";
+            sockOut.write(fileName.getBytes());
+
+            String serverInfo = servInfoBack(sock);
+            Log.i(TAG, "send task get server msg is : " + serverInfo);
+            if (serverInfo.equals("{_TASK_READY_}")) {
+                byte[] bufFile = new byte[1024];
+                int len = 0;
+                // while (true) {
+                // len = fis.read(bufFile);
+                // if (len != -1) {
+                // sockOut.write(bufFile, 0, len); // 将从硬盘上读取的字节数据写入socket输出流
+                // } else {
+                // break;
+                // }
+                // }
+                while ((len = fis.read(bufFile)) != -1) {
+                    sockOut.write(bufFile, 0, len); // 将从硬盘上读取的字节数据写入socket输出流
+                }
+                Thread.sleep(1000);
+            }
+            // sockOut.write("{_IMAGE_END_}".getBytes());
+            Log.i(TAG, "send  task success " + serverInfo);
+        } catch (Exception e) {
+            Log.w(TAG, "send task fail, log is : " + e.getMessage());
+            System.out.println("Error" + e);
+            return false;
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean sendImageIOStream(File mFile, Socket sock) {
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(mFile);
+            OutputStream sockOut = sock.getOutputStream();
+
+            // String fileName = mFile.getName();
+            // sockOut.write("{_IMAGE_END_}".getBytes());
             String fileName = "{_IMAGE_START_}";
             sockOut.write(fileName.getBytes());
 
             String serverInfo = servInfoBack(sock);
+            Log.i(TAG, "send image get server msg is : " + serverInfo);
             if (serverInfo.equals("{_IMAGE_READY_}")) {
                 byte[] bufFile = new byte[1024];
                 int len = 0;
@@ -208,11 +282,12 @@ public class JSocketClient {
                 while ((len = fis.read(bufFile)) != -1) {
                     sockOut.write(bufFile, 0, len); // 将从硬盘上读取的字节数据写入socket输出流
                 }
-                // Thread.sleep(2000);
+                Thread.sleep(1000);
             }
             // sockOut.write("{_IMAGE_END_}".getBytes());
+            Log.i(TAG, "send  image success " + serverInfo);
         } catch (Exception e) {
-            Log.i(TAG, "log is : " + e.getMessage());
+            Log.w(TAG, "send image fail, log is : " + e.getMessage());
             System.out.println("Error" + e);
             return false;
         } finally {

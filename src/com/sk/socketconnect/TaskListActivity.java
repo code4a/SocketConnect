@@ -18,6 +18,7 @@ public class TaskListActivity extends BaseActivity {
     private ListView mListView;
     private TaskListActAdapter mtlaAdapter;
     private List<String> mTaskList;
+    private String currentTaskId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +39,10 @@ public class TaskListActivity extends BaseActivity {
                     int position, long id) {
                 String itemMsg = (String) parent.getItemAtPosition(position);
                 String[] itemMsgArr = itemMsg.split(" ");
-
+                currentTaskId = itemMsgArr[1];
                 String requestMsg = appendRequest(Constant.GETTASKPOINT,
-                        itemMsgArr[1] + "," + itemMsgArr[2]);
-                sendRequest(requestMsg);
+                        currentTaskId + "," + itemMsgArr[2]);
+                sendRequestMsg(requestMsg);
             }
         });
     }
@@ -73,6 +74,7 @@ public class TaskListActivity extends BaseActivity {
             result = result.substring(result.indexOf(",") + 1);
             Bundle pBundle = new Bundle();
             pBundle.putString(Constant.GETTASKPOINT_RESULT, result);
+            pBundle.putString(Constant.TASK_ID, currentTaskId);
             openActivity(JBaiduMapActivity.class, pBundle);
         }
     }

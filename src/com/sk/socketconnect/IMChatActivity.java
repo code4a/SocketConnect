@@ -47,8 +47,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
     protected int mScreenWidth;
     protected int mScreenHeight;
 
-    private Button btn_chat_emo, btn_chat_send, btn_chat_add,
-            btn_chat_keyboard, btn_speak, btn_chat_voice;
+    private Button btn_chat_emo, btn_chat_send, btn_chat_add, btn_chat_keyboard, btn_speak, btn_chat_voice;
 
     XListView mListView;
 
@@ -83,6 +82,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
         public void onReceiveMsgSuccess(String receiveMsg) {
             printLog("接收到消息 ======= > " + receiveMsg);
             Message msg = mHandler.obtainMessage();
+            receiveMsg = receiveMsg.substring(receiveMsg.lastIndexOf(",") + 1, receiveMsg.indexOf("}"));
             msg.obj = receiveMsg;
             msg.what = RECEIVE_SERVER_MSG;
             mHandler.sendMessage(msg);
@@ -102,7 +102,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
-            Object receiveMsg =  msg.obj;
+            Object receiveMsg = msg.obj;
             switch (msg.what) {
             case RECEIVE_SERVER_MSG:
                 String currentTime = System.currentTimeMillis() + "";
@@ -201,8 +201,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
             String currentTime = System.currentTimeMillis() + "";
             JBmobMsg message = new JBmobMsg("1000", currentTime, msg);
             // 默认发送完成，将数据保存到本地消息表和最近会话表中
-            String sendMsg = appendRequest(Constant.IMTALK, "2," + user_id
-                    + "," + msg);
+            String sendMsg = appendRequest(Constant.IMTALK, "2," + user_id + "," + msg);
             // 刷新界面
             refreshMessage(message);
             sendTalkMessage(sendMsg);
@@ -275,8 +274,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
     public void showSoftInputView() {
         if (getWindow().getAttributes().softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
             if (getCurrentFocus() != null)
-                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-                        .showSoftInput(edit_user_comment, 0);
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).showSoftInput(edit_user_comment, 0);
         }
     }
 
@@ -335,8 +333,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
         edit_user_comment.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before,
-                    int count) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!TextUtils.isEmpty(s)) {
                     btn_chat_send.setVisibility(View.VISIBLE);
                     btn_chat_keyboard.setVisibility(View.GONE);
@@ -351,8 +348,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
@@ -389,16 +385,14 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
         });
 
         // 重发按钮的点击事件
-        mAdapter.setOnInViewClickListener(R.id.iv_fail_resend,
-                new MessageChatAdapter.onInternalClickListener() {
+        mAdapter.setOnInViewClickListener(R.id.iv_fail_resend, new MessageChatAdapter.onInternalClickListener() {
 
-                    @Override
-                    public void OnClickListener(View parentV, View v,
-                            Integer position, Object values) {
-                        // 重发消息
-                        // showResendDialog(parentV, v, values);
-                    }
-                });
+            @Override
+            public void OnClickListener(View parentV, View v, Integer position, Object values) {
+                // 重发消息
+                // showResendDialog(parentV, v, values);
+            }
+        });
     }
 
     private void initOrRefresh() {
@@ -456,12 +450,10 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
      * @throws
      */
     public void hideSoftInputView() {
-        InputMethodManager manager = ((InputMethodManager) this
-                .getSystemService(Activity.INPUT_METHOD_SERVICE));
+        InputMethodManager manager = ((InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE));
         if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
             if (getCurrentFocus() != null)
-                manager.hideSoftInputFromWindow(getCurrentFocus()
-                        .getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                manager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
@@ -483,31 +475,22 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
      * @return void
      * @throws
      */
-    public void initTopBarForBoth(String titleName, int rightDrawableId,
-            String text, onRightImageButtonClickListener listener) {
+    public void initTopBarForBoth(String titleName, int rightDrawableId, String text, onRightImageButtonClickListener listener) {
         mHeaderLayout = (HeaderLayout) findViewById(R.id.common_actionbar);
         mHeaderLayout.init(HeaderStyle.TITLE_DOUBLE_IMAGEBUTTON);
-        mHeaderLayout.setTitleAndLeftImageButton(titleName,
-                R.drawable.base_action_bar_back_bg_selector,
-                new OnLeftButtonClickListener());
-        mHeaderLayout.setTitleAndRightButton(titleName, rightDrawableId, text,
-                listener);
+        mHeaderLayout.setTitleAndLeftImageButton(titleName, R.drawable.base_action_bar_back_bg_selector, new OnLeftButtonClickListener());
+        mHeaderLayout.setTitleAndRightButton(titleName, rightDrawableId, text, listener);
     }
 
-    public void initTopBarForBoth(String titleName, int rightDrawableId,
-            onRightImageButtonClickListener listener) {
+    public void initTopBarForBoth(String titleName, int rightDrawableId, onRightImageButtonClickListener listener) {
         mHeaderLayout = (HeaderLayout) findViewById(R.id.common_actionbar);
         mHeaderLayout.init(HeaderStyle.TITLE_DOUBLE_IMAGEBUTTON);
-        mHeaderLayout.setTitleAndLeftImageButton(titleName,
-                R.drawable.base_action_bar_back_bg_selector,
-                new OnLeftButtonClickListener());
-        mHeaderLayout.setTitleAndRightImageButton(titleName, rightDrawableId,
-                listener);
+        mHeaderLayout.setTitleAndLeftImageButton(titleName, R.drawable.base_action_bar_back_bg_selector, new OnLeftButtonClickListener());
+        mHeaderLayout.setTitleAndRightImageButton(titleName, rightDrawableId, listener);
     }
 
     // 左边按钮的点击事件
-    public class OnLeftButtonClickListener implements
-            onLeftImageButtonClickListener {
+    public class OnLeftButtonClickListener implements onLeftImageButtonClickListener {
 
         @Override
         public void onClick() {
@@ -523,9 +506,7 @@ public class IMChatActivity extends BaseActivity implements IXListViewListener {
     public void initTopBarForLeft(String titleName) {
         mHeaderLayout = (HeaderLayout) findViewById(R.id.common_actionbar);
         mHeaderLayout.init(HeaderStyle.TITLE_DOUBLE_IMAGEBUTTON);
-        mHeaderLayout.setTitleAndLeftImageButton(titleName,
-                R.drawable.base_action_bar_back_bg_selector,
-                new OnLeftButtonClickListener());
+        mHeaderLayout.setTitleAndLeftImageButton(titleName, R.drawable.base_action_bar_back_bg_selector, new OnLeftButtonClickListener());
     }
 
     @Override

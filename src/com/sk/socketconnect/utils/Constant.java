@@ -3,7 +3,7 @@ package com.sk.socketconnect.utils;
 public interface Constant {
 
     String HOST = "115.28.142.17";
-//    String HOST = "192.168.1.114";
+//    String HOST = "192.168.1.110";
     int PORT = 3999;
     
     String ENCODING = "UTF-8";
@@ -17,10 +17,16 @@ public interface Constant {
     String UNLOADIMAGE_START = "_IMAGE_START_";
     String IMTALK = "_IM_MSG_";
 
+    /***************************** Msg Type **********************************/
+    String TYPE_IMG = "type_img";
+    String TYPE_MSG = "type_msg";
+    String TYPE_FILE = "type_file";
+    
     /***************************** Bundle Key **********************************/
     String LOGIN_RESULT = "login_result";
     String GETTASK_RESULT = "gettask_result";
     String GETTASKPOINT_RESULT = "gettaskpoint_result";
+    String TASK_ID = "task_id";
     String USER_ID = "user_id";
     String GET_POSITION_INFO = "get_position_info";
     
@@ -35,5 +41,8 @@ public interface Constant {
     String GETTASKPOINT_SUCCESS = "TASKPOINTLIST";
     String UNLOADIMAGE_START_SUCCESS = "_IMAGE_READY_";
     String UNLOADIMAGE_SUCCESS = "_SEND_IMAGE_SUCCESS_";
+
+    /***************************** sharePreference Key **********************************/
+    
     
 }

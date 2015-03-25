@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.sk.socketconnect.base.BaseActivity;
-import com.sk.socketconnect.interf.OnRequestStateListener;
 import com.sk.socketconnect.utils.Constant;
+import com.sk.socketconnect.utils.PersistTool;
 
 public class ControlActivity extends BaseActivity {
 
@@ -13,6 +13,7 @@ public class ControlActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PersistTool.getInstance(this);
         mBundleResult = getIntent().getStringExtra(Constant.LOGIN_RESULT);
         printLog("mBundleResult = " + mBundleResult);
     }
@@ -23,7 +24,7 @@ public class ControlActivity extends BaseActivity {
         switch (v.getId()) {
         case R.id.control_act_get_task:
             String requestMsg = appendRequest(Constant.GETTASK, mBundleResult);
-            sendRequest(requestMsg);
+            sendRequestMsg(requestMsg);
             break;
         case R.id.control_act_get_img:
             openActivity(UnLoadImageDetial.class, pBundle);
